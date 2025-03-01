@@ -4,8 +4,8 @@ class ProductModel {
   final double price;
   final String description;
   final String image;
-  final String category; //  إضافة الـ category
-  final RatingModel? rating; //  خليه nullable عشان لو الـ API مش راجع تقييم
+  final String category;
+  final RatingModel? rating;
 
   ProductModel({
     required this.id,
@@ -13,7 +13,7 @@ class ProductModel {
     required this.price,
     required this.description,
     required this.image,
-    required this.category, //  إضافة الـ category كـ required
+    required this.category,
     this.rating,
   });
 
@@ -21,10 +21,10 @@ class ProductModel {
     return ProductModel(
       id: jsonData['id'],
       title: jsonData['title'],
-      price: (jsonData['price'] as num).toDouble(), //  تحويل صحيح لـ double
+      price: (jsonData['price'] as num).toDouble(),
       description: jsonData['description'],
       image: jsonData['image'],
-      category: jsonData['category'] ?? "Uncategorized", // تعيين قيمة افتراضية
+      category: jsonData['category'] ?? "Uncategorized",
       rating: jsonData['rating'] != null
           ? RatingModel.fromJson(jsonData['rating'])
           : null, //  تجنب Null Error
@@ -40,7 +40,7 @@ class RatingModel {
 
   factory RatingModel.fromJson(Map<String, dynamic> jsonData) {
     return RatingModel(
-      rate: (jsonData['rate'] as num).toDouble(), //  تأكيد إنه double
+      rate: (jsonData['rate'] as num).toDouble(),
       count: jsonData['count'],
     );
   }

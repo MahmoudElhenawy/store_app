@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:store_app/models/product_model.dart';
 import 'package:store_app/screens/update_product_page.dart';
+import '../services/cart_provider.dart';
 
-class customcard extends StatelessWidget {
-  customcard({
+class CustomCard extends StatelessWidget {
+  final ProductModel product;
+
+  const CustomCard({
+    Key? key,
     required this.product,
-    super.key,
-  });
-  ProductModel product;
+    required Null Function() onAddToCart,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -20,13 +25,15 @@ class customcard extends StatelessWidget {
           Container(
             height: 130,
             width: 220,
-            decoration: BoxDecoration(boxShadow: [
-              BoxShadow(
-                blurRadius: 40,
-                color: Colors.grey.withOpacity(.2),
-                offset: Offset(10, 10),
-              )
-            ]),
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  blurRadius: 40,
+                  color: Colors.grey.withOpacity(.2),
+                  offset: Offset(10, 10),
+                ),
+              ],
+            ),
             child: Card(
               elevation: 10,
               child: Padding(
@@ -40,9 +47,7 @@ class customcard extends StatelessWidget {
                       product.title.substring(0, 6),
                       style: TextStyle(color: Colors.grey, fontSize: 16),
                     ),
-                    SizedBox(
-                      height: 5,
-                    ),
+                    SizedBox(height: 5),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -50,12 +55,46 @@ class customcard extends StatelessWidget {
                           r'$' '${product.price.toString()}',
                           style: TextStyle(fontSize: 16),
                         ),
-                        Icon(
-                          Icons.favorite,
-                          color: Colors.red,
-                        )
+                        // ✅ إضافة المنتج عند الضغط على القلب
+                        IconButton(
+                          icon: Icon(Icons.favorite, color: Colors.red),
+                          onPressed: () {
+                            Provider.of<CartProvider>(context, listen: false)
+                                .addToCart(product);
+
+                            // ✅ إظهار نافذة منبثقة (AlertDialog)
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text(
+                                  'تمت الإضافة 🛒',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                content: Text(
+                                  '${product.title} تمت إضافته للسلة بنجاح!',
+                                  textAlign: TextAlign.center,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text(
+                                      'حسناً',
+                                      style: TextStyle(color: Colors.blue),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
                       ],
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -69,7 +108,7 @@ class customcard extends StatelessWidget {
               height: 100,
               width: 100,
             ),
-          )
+          ),
         ],
       ),
     );

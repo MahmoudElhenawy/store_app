@@ -18,18 +18,26 @@ class SignupViewBody extends StatefulWidget {
 class _SignupViewBodyState extends State<SignupViewBody> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  String? email;
-  bool isLoading = false;
-  String? password;
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
   bool isAccepted = false;
-  String? name;
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<RegisterCubit, RegisterState>(
+      listener: (context, state) {
+        if (state is RegistarFailure) {
+          CustomSnackBar.show(context, state.errMessage);
+        } else if (state is RegistarSuccess) {
+          CustomSnackBar.show(context, "Registration Successful");
+          Navigator.pushReplacementNamed(context, HomePage.id);
+        }
+      },
       builder: (context, state) {
         return ModalProgressHUD(
-          inAsyncCall: isLoading,
+          inAsyncCall: state is RegistarLoading,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Form(
@@ -43,7 +51,8 @@ class _SignupViewBodyState extends State<SignupViewBody> {
                       height: 120,
                     ),
                   ),
-                  Text(
+                  const SizedBox(height: 20),
+                  const Text(
                     "Create New Account",
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
@@ -52,25 +61,42 @@ class _SignupViewBodyState extends State<SignupViewBody> {
                   CustomTextField(
                     labelText: 'Full Name',
                     hintText: 'Full Name',
-                    onChanged: (value) => name = value,
+                    controller: nameController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Full Name is required';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 20),
                   CustomTextField(
                     labelText: 'Email',
                     hintText: 'Email',
-                    onChanged: (value) => email = value,
+                    controller: emailController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Email is required';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 20),
                   CustomTextField(
                     isPassword: true,
                     labelText: 'Password',
                     hintText: 'Password',
-                    //isPassword: true,
-                    onChanged: (value) => password = value,
+                    controller: passwordController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Password is required';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 10),
                   TermsConditions(
-                    onChanged: (value) => isAccepted = value,
+                    onChanged: (value) => setState(() => isAccepted = value),
                   ),
                   const SizedBox(height: 20),
                   customButton(
@@ -80,7 +106,11 @@ class _SignupViewBodyState extends State<SignupViewBody> {
                         if (isAccepted) {
                           BlocProvider.of<RegisterCubit>(context)
                               .signUpWithGmail(
-                                  email!, password!, name!, "123456789");
+                            emailController.text.trim(),
+                            passwordController.text.trim(),
+                            nameController.text.trim(),
+                            "123456789",
+                          );
                         } else {
                           CustomSnackBar.show(context,
                               "You must accept the terms and conditions");
@@ -103,18 +133,6 @@ class _SignupViewBodyState extends State<SignupViewBody> {
             ),
           ),
         );
-      },
-      listener: (context, state) {
-        if (state is RegistarFailure) {
-          isLoading = false;
-          CustomSnackBar.show(context, state.errMessage);
-        } else if (state is RegistarSuccess) {
-          isLoading = false;
-          CustomSnackBar.show(context, "Registration Successful");
-          Navigator.pushReplacementNamed(context, HomePage.id);
-        } else if (state is RegistarLoading) {
-          isLoading = true;
-        }
       },
     );
   }

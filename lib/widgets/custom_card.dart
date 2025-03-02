@@ -55,14 +55,14 @@ class CustomCard extends StatelessWidget {
                           r'$' '${product.price.toString()}',
                           style: TextStyle(fontSize: 16),
                         ),
-                        // ✅ إضافة المنتج عند الضغط على القلب
+                        //  إضافة المنتج عند الضغط على القلب
                         IconButton(
                           icon: Icon(Icons.favorite, color: Colors.red),
                           onPressed: () {
                             Provider.of<CartProvider>(context, listen: false)
                                 .addToCart(product);
 
-                            // ✅ إظهار نافذة منبثقة (AlertDialog)
+                            //  إظهار نافذة منبثقة (AlertDialog)
                             showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
@@ -84,7 +84,7 @@ class CustomCard extends StatelessWidget {
                                       Navigator.pop(context);
                                     },
                                     child: Text(
-                                      'حسناً',
+                                      'ok',
                                       style: TextStyle(color: Colors.blue),
                                     ),
                                   ),

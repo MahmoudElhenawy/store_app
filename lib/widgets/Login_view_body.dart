@@ -18,28 +18,23 @@ class LoginViewBody extends StatefulWidget {
 class _LoginViewBodyState extends State<LoginViewBody> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  String? email;
-  String? password;
-  bool isLoading = false;
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<LoginCubit, LoginState>(
       listener: (context, state) {
         if (state is LoginFailure) {
-          setState(() => isLoading = false);
           CustomSnackBar.show(context, state.errorMessage);
         } else if (state is LoginSuccess) {
-          setState(() => isLoading = false);
           Navigator.pushNamed(context, HomePage.id);
           CustomSnackBar.show(context, "Login successful");
-        } else if (state is LoginLoading) {
-          setState(() => isLoading = true);
         }
       },
       builder: (context, state) {
         return ModalProgressHUD(
-          inAsyncCall: isLoading,
+          inAsyncCall: state is LoginLoading,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Form(
@@ -66,8 +61,12 @@ class _LoginViewBodyState extends State<LoginViewBody> {
                   CustomTextField(
                     labelText: 'Email',
                     hintText: 'Enter your email',
-                    onChanged: (value) {
-                      email = value;
+                    controller: emailController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Email is required';
+                      }
+                      return null;
                     },
                   ),
                   const SizedBox(height: 20),
@@ -75,9 +74,12 @@ class _LoginViewBodyState extends State<LoginViewBody> {
                     isPassword: true,
                     labelText: 'Password',
                     hintText: 'Enter your password',
-                    //isPassword: true,
-                    onChanged: (value) {
-                      password = value;
+                    controller: passwordController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Password is required';
+                      }
+                      return null;
                     },
                   ),
                   const SizedBox(height: 28),
@@ -86,8 +88,8 @@ class _LoginViewBodyState extends State<LoginViewBody> {
                     onTap: () {
                       if (formKey.currentState!.validate()) {
                         BlocProvider.of<LoginCubit>(context).signInWithGmail(
-                          email!,
-                          password!,
+                          emailController.text.trim(),
+                          passwordController.text.trim(),
                         );
                       }
                     },
